@@ -20,11 +20,11 @@ final class MessageBirdSmsGatewayServiceProvider extends PackageServiceProvider
     public function packageRegistered(): void
     {
         $this->app->afterResolving(SmsGatewayManager::class, function (SmsGatewayManager $manager, Application $app): void {
-            $manager->extend('messagebird', fn (): MessageBirdDriver => $app->make(MessageBirdDriver::class));
+            $manager->extend('messagebird', fn(): MessageBirdDriver => $app->make(MessageBirdDriver::class));
         });
 
         if ($this->app->bound('sms-gateway')) {
-            $this->app->make('sms-gateway')->extend('messagebird', fn (): MessageBirdDriver => $this->app->make(MessageBirdDriver::class));
+            $this->app->make('sms-gateway')->extend('messagebird', fn(): MessageBirdDriver => $this->app->make(MessageBirdDriver::class));
         }
     }
 }
