@@ -1,13 +1,18 @@
 {
     "name": "misaf/laravel-sms-gateway-messagebird",
-    "description": "MessageBird driver for misaf/laravel-sms-gateway.",
+    "description": "MessageBird SMS gateway driver for Laravel.",
     "type": "library",
     "license": "MIT",
     "keywords": [
         "laravel",
+        "laravel-package",
         "sms",
+        "sms-api",
         "sms-gateway",
-        "messagebird"
+        "sms-provider",
+        "sms-driver",
+        "messagebird",
+        "messagebird-sms"
     ],
     "homepage": "https://github.com/misaf/laravel-sms-gateway-messagebird",
     "support": {

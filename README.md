@@ -1,29 +1,46 @@
 # Laravel SMS Gateway MessageBird Driver
 
-MessageBird driver package for [`misaf/laravel-sms-gateway`](https://github.com/misaf/laravel-sms-gateway).
+MessageBird SMS gateway driver for [`misaf/laravel-sms-gateway`](https://github.com/misaf/laravel-sms-gateway).
 
 ## Installation
 
 ```bash
-composer require misaf/laravel-sms-gateway misaf/laravel-sms-gateway-messagebird
+composer require misaf/laravel-sms-gateway-messagebird
 ```
 
-Laravel package discovery registers `Misaf\LaravelSmsGatewayMessageBird\MessageBirdSmsGatewayServiceProvider` automatically.
+Laravel package discovery registers the driver service provider automatically.
 
-## Usage
-
-Set the default driver when this provider should be used by default:
+## Configuration
 
 ```env
 SMS_GATEWAY_DRIVER=messagebird
+SMS_GATEWAY_MESSAGEBIRD_ACCESS_KEY=your-access-key
 ```
 
-Then configure the provider credentials in `config/services.php` and use the shared facade:
+```php
+// config/services.php
+'messagebird' => [
+    'access_key' => env('SMS_GATEWAY_MESSAGEBIRD_ACCESS_KEY'),
+],
+```
+
+## Usage
 
 ```php
 use Misaf\LaravelSmsGateway\Facade\SmsGateway;
 
-SmsGateway::driver('messagebird')->request();
+$response = SmsGateway::driver('messagebird')->send([
+    'recipients' => ['09123456789'],
+    'body'       => 'Hello',
+]);
+```
+
+The payload is passed directly to MessageBird, so use the fields expected by the MessageBird API.
+
+Use `request()` when you need direct access to Laravel's HTTP client:
+
+```php
+$request = SmsGateway::driver('messagebird')->request();
 ```
 
 ## Testing
