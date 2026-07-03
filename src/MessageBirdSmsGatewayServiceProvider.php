@@ -24,7 +24,7 @@ final class MessageBirdSmsGatewayServiceProvider extends PackageServiceProvider
         });
 
         if ($this->app->bound('sms-gateway')) {
-            $this->app->make('sms-gateway')->extend('messagebird', fn(): MessageBirdDriver => $this->app->make(MessageBirdDriver::class));
+            $this->app->make('sms-gateway')->extend('messagebird', fn(Application $app): MessageBirdDriver => $app->make(MessageBirdDriver::class));
         }
     }
 }
