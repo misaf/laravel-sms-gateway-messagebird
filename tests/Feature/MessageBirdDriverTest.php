@@ -16,22 +16,37 @@ test('can send SMS via MessageBird driver', function (): void {
         'https://rest.messagebird.com/messages' => Http::response($response, 201),
     ]);
 
-    $result = SmsGateway::driver()->request()
-        ->post('messages', [
-            'originator' => 'Laravel',
-            'recipients' => ['31612345678'],
-            'body'       => 'Hello from MessageBird',
-        ])
-        ->json();
+    $result = SmsGateway::driver()->send([
+        'originator' => 'Laravel',
+        'recipients' => ['31612345678'],
+        'body'       => 'Hello from MessageBird',
+    ])->json();
 
     Http::assertSent(function (Request $request): bool {
         return 'https://rest.messagebird.com/messages' === $request->url()
             && $request->hasHeader('Authorization', 'AccessKey messagebird-access-key')
-            && $request->isJson()
+            && $request->isForm()
             && 'Laravel' === $request['originator']
             && ['31612345678'] === $request['recipients']
             && 'Hello from MessageBird' === $request['body'];
     });
 
     expect($result)->toEqual($response);
+});
+
+test('prefers the base URL configured in services over the driver default', function (): void {
+    config()->set('sms_gateway.default', 'messagebird');
+    config()->set('services.messagebird.base_url', 'https://services-override.example.test/');
+
+    Http::fake([
+        'https://services-override.example.test/*' => Http::response(['status' => 'sent'], 201),
+    ]);
+
+    SmsGateway::driver()->send([
+        'body' => 'Hello',
+    ]);
+
+    Http::assertSent(function (Request $request): bool {
+        return 'https://services-override.example.test/messages' === $request->url();
+    });
 });

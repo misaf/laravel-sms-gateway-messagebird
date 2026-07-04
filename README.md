@@ -21,8 +21,19 @@ SMS_GATEWAY_MESSAGEBIRD_ACCESS_KEY=your-access-key
 // config/services.php
 'messagebird' => [
     'access_key' => env('SMS_GATEWAY_MESSAGEBIRD_ACCESS_KEY'),
+    'base_url' => env('SMS_GATEWAY_MESSAGEBIRD_BASE_URL', 'https://rest.messagebird.com/'),
 ],
 ```
+
+## Driver Behavior
+
+| Option | Value |
+| --- | --- |
+| Driver name | `messagebird` |
+| Default base URL | `https://rest.messagebird.com/` |
+| `send()` endpoint | `POST messages` |
+| Authentication | `Authorization: AccessKey ...` header from `services.messagebird.access_key` |
+| Payload | Form data sent directly to MessageBird |
 
 ## Usage
 
@@ -30,8 +41,9 @@ SMS_GATEWAY_MESSAGEBIRD_ACCESS_KEY=your-access-key
 use Misaf\LaravelSmsGateway\Facade\SmsGateway;
 
 $response = SmsGateway::driver('messagebird')->send([
-    'recipients' => ['09123456789'],
-    'body'       => 'Hello',
+    'originator' => 'Laravel',
+    'recipients' => ['31612345678'],
+    'body'       => 'Hello from MessageBird',
 ]);
 ```
 
