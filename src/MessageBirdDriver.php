@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Misaf\LaravelSmsGatewayMessageBird\Drivers;
+namespace Misaf\LaravelSmsGatewayMessageBird;
 
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Client\Response;
