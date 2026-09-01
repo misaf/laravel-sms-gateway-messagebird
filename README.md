@@ -1,6 +1,11 @@
-# Laravel SMS Gateway MessageBird Driver
+# Laravel SMS Gateway — MessageBird Driver
 
-MessageBird SMS gateway driver for [`misaf/laravel-sms-gateway`](https://github.com/misaf/laravel-sms-gateway).
+A [MessageBird](https://messagebird.com) SMS driver for
+[`misaf/laravel-sms-gateway`](https://github.com/misaf/laravel-sms-gateway).
+
+## Requirements
+
+PHP 8.4+, Laravel 13, `misaf/laravel-sms-gateway`.
 
 ## Installation
 
@@ -8,70 +13,73 @@ MessageBird SMS gateway driver for [`misaf/laravel-sms-gateway`](https://github.
 composer require misaf/laravel-sms-gateway-messagebird
 ```
 
-Laravel package discovery registers the driver service provider automatically.
-
-## Configuration
+The service provider auto-registers a `messagebird` driver on the core manager. Point
+the core package at it:
 
 ```env
 SMS_GATEWAY_DRIVER=messagebird
 SMS_GATEWAY_MESSAGEBIRD_ACCESS_KEY=your-access-key
 ```
 
-Publish the config file if you want to edit it directly:
+Publish the config:
 
 ```bash
 php artisan vendor:publish --tag=sms-gateway-messagebird-config
+# or
+php artisan sms-gateway-messagebird:install
 ```
-
-```php
-<?php
-
-declare(strict_types=1);
-
-return [
-    'access_key' => env('SMS_GATEWAY_MESSAGEBIRD_ACCESS_KEY'),
-    'base_url'   => env('SMS_GATEWAY_MESSAGEBIRD_BASE_URL'),
-];
-```
-
-## Driver Behavior
-
-| Option | Value |
-| --- | --- |
-| Driver name | `messagebird` |
-| Default base URL | `https://rest.messagebird.com/` |
-| `send()` endpoint | `POST messages` |
-| Authentication | `Authorization: AccessKey ...` header from `laravel-sms-gateway-messagebird.access_key` |
-| Payload | Form data sent directly to MessageBird |
 
 ## Usage
+
+With `SMS_GATEWAY_DRIVER=messagebird`, the core facade uses this driver with no
+further changes:
 
 ```php
 use Misaf\LaravelSmsGateway\Facades\SmsGateway;
 
-$response = SmsGateway::driver('messagebird')->send([
+$response = SmsGateway::driver()->send([
     'originator' => 'Laravel',
     'recipients' => ['31612345678'],
-    'body'      => 'Hello from MessageBird',
+    'body' => 'Hello from MessageBird',
 ]);
 ```
 
-The payload is passed directly to MessageBird, so use the fields expected by the MessageBird API.
-
-Use `request()` when you need direct access to Laravel's HTTP client:
+To use it for a single call regardless of the default, name it:
 
 ```php
-$request = SmsGateway::driver('messagebird')->request();
+$response = SmsGateway::driver('messagebird')->send($data);
 ```
 
-## Development
+`send()` posts to `POST messages`, form-encoded. The payload goes straight to MessageBird, so use
+the fields its API expects.
 
-This package is developed in the
-[`misaf/laravel-sms-gateway`](https://github.com/misaf/laravel-sms-gateway)
-monorepo at `src/Drivers/laravel-sms-gateway-messagebird` and split out here on release. Open issues and
-pull requests against the monorepo; run `composer test` and `composer analyse`
-from its root.
+Reach the configured Laravel HTTP client directly with `request()` to call any
+other MessageBird endpoint:
+
+```php
+$response = SmsGateway::driver('messagebird')->request()->get('some/endpoint');
+```
+
+Every request dispatches `Misaf\LaravelSmsGateway\Events\SmsSent` with the
+driver name `messagebird` and the HTTP request and response.
+
+## Configuration
+
+`config/sms-gateway-messagebird.php`:
+
+- `access_key` — your MessageBird access key (`SMS_GATEWAY_MESSAGEBIRD_ACCESS_KEY`), sent as the `Authorization: AccessKey {key}` header
+- `base_url` — the endpoint (`SMS_GATEWAY_MESSAGEBIRD_BASE_URL`), defaulting to `https://rest.messagebird.com/`
+
+Timeouts are shared with the core package — `SMS_GATEWAY_TIMEOUT` and
+`SMS_GATEWAY_CONNECT_TIMEOUT` from `config/sms-gateway.php`.
+
+## Contributing
+
+This repository is a read-only split of the
+[monorepo](https://github.com/misaf/laravel-sms-gateway); commits made here are
+overwritten by the next split. Open issues and pull requests against the
+monorepo, where this driver lives at `Drivers/laravel-sms-gateway-messagebird`.
 
 ## License
 
-MIT
+MIT. See [LICENSE](LICENSE).

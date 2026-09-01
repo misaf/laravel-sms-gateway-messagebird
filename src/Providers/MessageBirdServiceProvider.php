@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Misaf\LaravelSmsGatewayMessageBird\Providers;
 
 use Composer\InstalledVersions;
-use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Foundation\Console\AboutCommand;
+use Illuminate\Support\Facades\Config;
 use Misaf\LaravelSmsGateway\Contracts\SmsGateway;
 use Misaf\LaravelSmsGateway\SmsGatewayManager;
 use Misaf\LaravelSmsGatewayMessageBird\MessageBirdDriver;
@@ -20,16 +20,23 @@ final class MessageBirdServiceProvider extends PackageServiceProvider
     {
         $package
             ->name('laravel-sms-gateway-messagebird')
-            ->hasConfigFile('laravel-sms-gateway-messagebird')
+            ->hasConfigFile()
             ->hasInstallCommand(function (InstallCommand $command): void {
-                $command->askToStarRepoOnGitHub('misaf/laravel-sms-gateway-messagebird');
+                $command
+                    ->publishConfigFile()
+                    ->askToStarRepoOnGitHub('misaf/laravel-sms-gateway-messagebird');
             });
     }
 
     public function packageRegistered(): void
     {
         $this->callAfterResolving(SmsGatewayManager::class, function (SmsGatewayManager $manager): void {
-            $manager->extend('messagebird', fn(Application $app): SmsGateway => $app->make(MessageBirdDriver::class));
+            $manager->extend('messagebird', fn(): SmsGateway => new MessageBirdDriver(
+                accessKey: Config::string('sms-gateway-messagebird.access_key'),
+                baseUrl: Config::string('sms-gateway-messagebird.base_url'),
+                timeout: Config::integer('sms-gateway.defaults.timeout'),
+                connectTimeout: Config::integer('sms-gateway.defaults.connect_timeout'),
+            ));
         });
     }
 

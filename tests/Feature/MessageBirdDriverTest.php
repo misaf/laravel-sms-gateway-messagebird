@@ -7,8 +7,8 @@ use Illuminate\Support\Facades\Http;
 use Misaf\LaravelSmsGateway\Facades\SmsGateway;
 
 test('can send SMS via MessageBird driver', function (): void {
-    config()->set('laravel-sms-gateway.default', 'messagebird');
-    config()->set('laravel-sms-gateway-messagebird.access_key', 'messagebird-access-key');
+    config()->set('sms-gateway.default', 'messagebird');
+    config()->set('sms-gateway-messagebird.access_key', 'messagebird-access-key');
 
     $response = ['id' => 'message-id', 'status' => 'sent'];
 
@@ -35,8 +35,8 @@ test('can send SMS via MessageBird driver', function (): void {
 });
 
 test('prefers the base URL configured in the driver config over the driver default', function (): void {
-    config()->set('laravel-sms-gateway.default', 'messagebird');
-    config()->set('laravel-sms-gateway-messagebird.base_url', 'https://services-override.example.test/');
+    config()->set('sms-gateway.default', 'messagebird');
+    config()->set('sms-gateway-messagebird.base_url', 'https://services-override.example.test/');
 
     Http::fake([
         'https://services-override.example.test/*' => Http::response(['status' => 'sent'], 201),
